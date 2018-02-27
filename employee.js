@@ -28,11 +28,13 @@ $(document).ready(function(){
 		data.birth_date = uiParentModal.find('#birth_date').val();
 		data.salary = uiParentModal.find('#salary').val();
 		data.employee_status = uiParentModal.find('#employee_status').val();
+		data.time_log_access = uiParentModal.find('#time_log_access').val();
+		data.work_email = uiParentModal.find('#work_email').val();
 
 		data.sargas_form_token = $.cookie('sargas_form_cookie');
 
 		$.ajax({
-			url : 'employee/save_employee_info',
+			url : '/employee/save_employee_info',
 			data : data,
 			type : 'post',
 			dataType : 'json',
@@ -63,6 +65,182 @@ $(document).ready(function(){
 				}
 			}
 		});
+	});
+
+	$('.add_team').on('click', function(e){
+		var data = {};
+
+		var uiParentModal = $(this).closest('#add_team');
+
+		data.team_name = uiParentModal.find('#team_name').val();
+		data.team_leader = uiParentModal.find('#team_leader').val();
+
+		data.sargas_form_token = $.cookie('sargas_form_cookie');
+
+		$.ajax({
+			url : '/employee/insert_team',
+			data : data,
+			type : 'post',
+			dataType : 'json',
+			error : function(xhr, status, message){
+
+			},
+			beforeSend : function(){
+				show_loading(uiParentModal);
+			},
+			complete : function(){
+				hide_loading(uiParentModal);
+			},
+			success : function(oData){
+				if(oData.status == 'false'){
+					uiParentModal.find('.error_message').html(oData.message).fadeIn();
+				}else{
+
+					window.location.reload();
+				}
+			}
+		});
+	});
+
+	$('.add_tl').on('click', function(e){
+		var data = {};
+
+		var uiParentModal = $(this).closest('#add_team_leader');
+
+		data.modal_type = uiParentModal.find('.modal_type').val();
+		data.team_name = uiParentModal.find('.team_name').val();
+		data.team_leader = uiParentModal.find('#team_leader').val();
+
+		data.sargas_form_token = $.cookie('sargas_form_cookie');
+
+		$.ajax({
+			url : '/employee/update_team',
+			data : data,
+			type : 'post',
+			dataType : 'json',
+			error : function(xhr, status, message){
+
+			},
+			beforeSend : function(){
+				show_loading(uiParentModal);
+			},
+			complete : function(){
+				hide_loading(uiParentModal);
+			},
+			success : function(oData){
+				if(oData.status == 'false'){
+					uiParentModal.find('.error_message').html(oData.message).fadeIn();
+				}else{
+
+					window.location.reload();
+				}
+			}
+		});
+	});
+
+	$('.add_tm').on('click', function(e){
+		var data = {};
+
+		var uiParentModal = $(this).closest('#add_team_member');
+
+		data.modal_type = uiParentModal.find('.modal_type').val();
+		data.team_name = uiParentModal.find('.team_name').val();
+		data.team_member = uiParentModal.find('#team_member').val();
+
+		data.sargas_form_token = $.cookie('sargas_form_cookie');
+
+		$.ajax({
+			url : '/employee/update_team',
+			data : data,
+			type : 'post',
+			dataType : 'json',
+			error : function(xhr, status, message){
+
+			},
+			beforeSend : function(){
+				show_loading(uiParentModal);
+			},
+			complete : function(){
+				hide_loading(uiParentModal);
+			},
+			success : function(oData){
+				if(oData.status == 'false'){
+					uiParentModal.find('.error_message').html(oData.message).fadeIn();
+				}else{
+
+					window.location.reload();
+				}
+			}
+		});
+	});
+
+	$('a.delete_tl').on('click', function(e){
+		var data = {};
+		var uiParentDiv = $(this).closest('div.table_div');
+		var parentRow = $(this).closest('tr');
+
+		data.team_name = parentRow.find('input[name=team_name]').val();
+		data.team_leader = parentRow.find('.team_leader').html();
+
+		data.sargas_form_token = $.cookie('sargas_form_cookie');
+
+		$.ajax({
+			url : '/employee/delete_team_leader',
+			data : data,
+			type : 'post',
+			dataType : 'json',
+			error : function(xhr, status, message){
+
+			},
+			beforeSend : function(){
+				show_loading(uiParentDiv);
+			},
+			complete : function(){
+				hide_loading(uiParentDiv);
+			},
+			success : function(oData){
+				if(oData.status == 'false'){
+					uiParentDiv.find('.error_message').html(oData.message).fadeIn();
+				}else{
+
+					window.location.reload();
+				}
+			}
+		})
+	});
+
+	$('a.delete_tm').on('click', function(e){
+		var data = {};
+		var uiParentDiv = $(this).closest('div.table_div');
+		var parentRow = $(this).closest('tr');
+
+		data.team_member = parentRow.find('input[name=team_member]').val();
+
+		data.sargas_form_token = $.cookie('sargas_form_cookie');
+
+		$.ajax({
+			url : '/employee/delete_team_member',
+			data : data,
+			type : 'post',
+			dataType : 'json',
+			error : function(xhr, status, message){
+
+			},
+			beforeSend : function(){
+				show_loading(uiParentDiv);
+			},
+			complete : function(){
+				hide_loading(uiParentDiv);
+			},
+			success : function(oData){
+				if(oData.status == 'false'){
+					uiParentDiv.find('.error_message').html(oData.message).fadeIn();
+				}else{
+
+					window.location.reload();
+				}
+			}
+		})
 	});
 }).on('click', 'p.edit', function(e){
 	
@@ -134,7 +312,9 @@ $(document).ready(function(){
 	data.hire_date = uiParent.find('input[name=hire_date]').val();
 	data.release_date = uiParent.find('input[name=release_date]').val();
 	data.employee_status = uiParent.find('input[name=employee_status]').val();
-//console.log(data);
+	data.time_log_access = uiParent.find('select[name=time_log_access]').val();
+	data.work_email = uiParent.find('input[name=work_email]').val();
+
 	data.sargas_form_token = $.cookie('sargas_form_cookie');
 
 	$.ajax({
@@ -167,7 +347,6 @@ $(document).ready(function(){
 				uiParent.find('p.delete').show();
 				uiParent.find('p.save').hide();
 
-				//$(this).closest('tr').find('p.delete').show();
 				uiParent.find('p.cancel').hide();
 
 				uiParent.find('span.username').html(data.username);
@@ -193,6 +372,9 @@ $(document).ready(function(){
 				uiParent.find('span.release_date').html(data.release_date);
 				uiParent.find('span.role_id').html(data.role_id);
 				uiParent.find('span.employee_status').html(data.employee_status);
+				uiParent.find('span.time_log_access').html(data.time_log_access);
+				uiParent.find('span.work_email').html(data.work_email);
+
 			}
 		}
 	});
