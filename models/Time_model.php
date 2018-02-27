@@ -57,7 +57,65 @@ class Time_model extends CI_Model{
 		}
 	}
 
-	public function get_logs_by_username($username, $key, $limit){
+	public function get_last_log_by_username($username){;
+		$record = array();
+		// $sdk = new Aws\Sdk([
+		//     'endpoint'   => 'http://localhost:8000/',
+		//     'region'   => 'us-west-2',
+		//     'version'  => 'latest',
+		//     'credentials' => array('key'=>'sharedDb',
+        //         'secret'=>'sharedDb')
+		// ]);
+
+		$sdk = new Aws\Sdk([
+		    'region'   => 'ap-southeast-1',
+		    'version'  => 'latest',
+		    'credentials' => array('key'=>'AKIAIKQ6XI5AR6CJDI3A',
+                'secret'=>'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')
+		]);
+
+		$dynamodb = $sdk->createDynamoDb();
+		$marshaler = new Marshaler();
+
+		$params = [
+			'TableName' => 'empattendance',
+			'KeyConditionExpression' => '#u = :u',
+			//'FilterExpression' => '#u = :u',
+			'ExpressionAttributeNames' => [
+				'#u' => 'username'
+			],
+			'ExpressionAttributeValues' => [
+				':u' => [
+							'S' => $username
+						]
+			],
+			'ScanIndexForward' => false,
+			'Limit' => 1
+		];
+
+		$scan_response = $dynamodb->query($params);
+		
+		if($scan_response['@metadata']['statusCode'] == '200'){
+			if(array_check($scan_response['Items'])){
+
+				foreach($scan_response['Items'] as $key => $value){
+					$record['time_log'] = json_decode($marshaler->unmarshalJson($value), true);
+				}
+				
+			}
+
+			if(isset($scan_response['LastEvaluatedKey'])){
+				$record['LastEvaluatedKey']['username'] = $scan_response['LastEvaluatedKey']['username']['S'];
+				$record['LastEvaluatedKey']['date'] = $scan_response['LastEvaluatedKey']['date']['S'];
+			}
+
+			return $record;
+		}else{
+			return $record;
+		}
+	}
+
+	public function get_logs_by_username($username, $dates, $key, $limit){
 		$record = array();
 
 		// $sdk = new Aws\Sdk([
@@ -80,14 +138,23 @@ class Time_model extends CI_Model{
 
 		$params = [
 			'TableName' => 'empattendance',
-			'KeyConditionExpression' => 'username = :u',
-			'FilterExpression' => 'username = :u',
+			'FilterExpression' => '#u = :u',
+			'ExpressionAttributeNames' => [
+				'#u' => 'username'
+			],
 			'ExpressionAttributeValues' => [
 				':u' => [
 							'S' => $username
 						]
 			]
 		];
+
+		if(array_check($dates)){
+			$params['FilterExpression'] = '#u = :u AND #d BETWEEN :f AND :t';
+			$params['ExpressionAttributeNames']['#d'] = 'date';
+			$params['ExpressionAttributeValues'][':f']['S'] = $dates['date_from'];
+			$params['ExpressionAttributeValues'][':t']['S'] = $dates['date_to'];
+		}
 
 		if($limit > 0){
 			$params['ScanIndexForward'] = false;
@@ -100,7 +167,6 @@ class Time_model extends CI_Model{
 		}
 
 		$scan_response = $dynamodb->scan($params);
-
 		if($scan_response['@metadata']['statusCode'] == '200'){
 			if(array_check($scan_response['Items'])){
 
@@ -202,6 +268,42 @@ class Time_model extends CI_Model{
 			$error['status'] = 'false';
 
 			return $error;
+		}
+	}
+
+	public function delete_time_log($key){
+		// $sdk = new Aws\Sdk([
+		//     'endpoint'   => 'http://localhost:8000/',
+		//     'region'   => 'us-west-2',
+		//     'version'  => 'latest',
+		//     'credentials' => array('key'=>'sharedDb',
+  //               'secret'=>'sharedDb')
+		// ]);
+
+		$sdk = new Aws\Sdk([
+		    'region'   => 'ap-southeast-1',
+		    'version'  => 'latest',
+		    'credentials' => array('key'=>'AKIAIKQ6XI5AR6CJDI3A',
+                'secret'=>'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')
+		]);
+
+		$dynamodb = $sdk->createDynamoDb();
+
+		$params = [
+			'TableName' => 'empattendance',
+			'Key' => $key
+		];
+
+		try{
+			$result = $dynamodb->deleteItem($params);
+			$status['status'] = 'true';
+
+			return $status;
+		} catch (DynamoDbException $e) {
+		    $error['message'] = 'Unable to delete. Kindly contact your IT Support.';
+		    $error['status'] = 'false';
+
+		    return $error;
 		}
 	}
 
