@@ -164,17 +164,45 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-	<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
           <a class="nav-link" href="<?php echo base_url();?>Time">
             <i class="fa fa-fw fa-clock-o"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
+
+          <ul style="list-style: none;" id="exampleAccordion">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Punch in/out">
+              <a class="nav-link" href="<?php echo base_url();?>Time/bundy_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Punch in/out</span>
+              </a>
+            </li>
+            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee Time Logs">
+              <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Employee Time Logs</span>
+              </a>
+            </li>
+            <?php endif;?>
+          </ul>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
           <a class="nav-link" href="<?php echo base_url();?>Employee">
             <i class="fa fa-fw fa-file-text-o"></i>
             <span class="nav-link-text">Employee</span>
           </a>
+
+          <ul style="list-style: none;" id="exampleAccordion">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Manage Teams">
+              <a class="nav-link" href="<?php echo base_url();?>Employee/manage_team_index">
+                <i class="fa fa-fw fa-file-text-o"></i>
+                <span class="nav-link-text">Manage Teams</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -184,7 +212,7 @@
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
-	 <li class="nav-item">
+        <li class="nav-item">
           <?php if($user['username'] == 'sgsddbadmin'){
                   $user['family_name'] = 'Admin';
                   $user['given_name'] = 'Sgs';
@@ -230,10 +258,6 @@
               <tbody>
                 <?php if(array_check($employees)):?>
                   <?php foreach($employees as $ekey => $employee):?>
-                    <?php if($employee['username'] == 'sgsddbadmin'){
-                            continue;
-                          }
-                    ;?>
                     <tr>
                       <td style="text-align: center;">
                         <?php $url_encode = url_encode($employee['username']);?>
@@ -250,7 +274,7 @@
                 <?php endif;?>
               </tbody>
             </table>
-	    <div class="pagination_holder" align="right"><?php echo $links['pagination']; ?></div>
+            <div class="pagination_holder" align="right"><?php echo $links['pagination']; ?></div>
           </div>
         </div>
       </div>
@@ -270,7 +294,7 @@
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">�</span>
+              <span aria-hidden="true">Ã—</span>
             </button>
           </div>
           <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
@@ -292,6 +316,7 @@
             </button>
           </div>
           <div class="modal-body">
+            <p style="font-size: 12px">Fields with asteres are required.</p>
             <input type="hidden" class="report_type" value="add_employee"/>
             
             <div class="row margin-top-10"></div>
@@ -299,7 +324,7 @@
 
             <div class="row margin-top-10">
               <div class="col-md-2 col-sm-1">
-                Employee Id:
+                <span style="color: red">*</span>Employee Id:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="employee_id" class="form-control" id="employee_id"/>         
@@ -315,7 +340,7 @@
 
             <div class="row margin-top-10">
               <div class="col-md-2 col-sm-1">
-                First Name:
+                <span style="color: red">*</span>First Name:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="given_name" class="form-control" id="given_name"/>         
@@ -331,7 +356,7 @@
 
             <div class="row margin-top-10">
               <div class="col-md-2 col-sm-1">
-                Last Name:
+                <span style="color: red">*</span>Last Name:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="family_name" class="form-control" id="family_name"/>         
@@ -357,7 +382,7 @@
                 <input name="position" class="form-control" id="position"/>
               </div>
 
-               <div class="col-md-2 col-sm-1" style="margin-top: 5px;">
+              <div class="col-md-2 col-sm-1" style="margin-top: 5px;">
                 Hire Date:
               </div>
               <div class="col-md-5 col-sm-5" style="padding-right: 0px !important">
@@ -393,7 +418,7 @@
 
             <div class="row margin-top-10">
               <div class="col-md-2 col-sm-1">
-                Username:
+                <span style="color: red">*</span>Username:
               </div>
               <div class="col-md-3 col-sm-4" style="">
                 <input name="username" class="form-control" id="username"/>         
@@ -412,7 +437,7 @@
 
             <div class="row margin-top-10">
               <div class="col-md-2 col-sm-1">
-                Password:
+                <span style="color: red">*</span>Password:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="password" class="form-control" id="password" type="password" />         
@@ -501,7 +526,7 @@
 
             <div class="row margin-top-10 drill_down_row">
               <div class="col-md-2 col-sm-1" style="margin-top: 5px;">
-                Access:
+                <span style="color: red">*</span>Access:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <select name="role" class="form-control role" id="role">
@@ -510,13 +535,34 @@
                   <option value="2">View/Edit</option>
                   <option value="5">View</option>
                 </select>
-              </div>
-	      <div class="col-md-2 col-sm-1">
+              </div> 
+
+              <div class="col-md-2 col-sm-1">
                 Employee Status:
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="employee_status" class="form-control" id="employee_status"/>         
-              </div>            
+              </div>           
+            </div>
+
+            <div class="row margin-top-10 drill_down_row">
+              <div class="col-md-2 col-sm-1" style="margin-top: 5px;">
+                Time Log Access:
+              </div>
+              <div class="col-md-3 col-sm-3" style="">
+                <select name="time_log_access" class="form-control default" id="time_log_access">
+                  <option value="">- Select -</option>
+                  <option value="1">Yes</option>
+                  <option value="2">No</option>
+                </select>
+              </div>
+
+              <div class="col-md-2 col-sm-1">
+                Work Email:
+              </div>
+              <div class="col-md-3 col-sm-3" style="">
+                <input name="work_email" class="form-control" id="work_email"/>         
+              </div>
             </div>
           </div>
           <div class="modal-footer" id="modal-footer">
