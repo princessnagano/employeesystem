@@ -176,12 +176,38 @@
             <i class="fa fa-fw fa-clock-o"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
+
+          <ul style="list-style: none;">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+              <a class="nav-link" href="<?php echo base_url();?>Time/bundy_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Punch in/out</span>
+              </a>
+            </li>
+            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
+              <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Employee Time Logs</span>
+              </a>
+            </li>
+            <?php endif;?>
+          </ul>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
           <a class="nav-link" href="<?php echo base_url();?>Employee">
             <i class="fa fa-fw fa-file-text-o"></i>
             <span class="nav-link-text">Employee</span>
           </a>
+
+          <ul style="list-style: none;" id="exampleAccordion">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Manage Teams">
+              <a class="nav-link" href="<?php echo base_url();?>Employee/manage_team_index">
+                <i class="fa fa-fw fa-file-text-o"></i>
+                <span class="nav-link-text">Manage Teams</span>
+              </a>
+            </li>
+          </ul>
         </li>
         
       </ul>
@@ -209,9 +235,6 @@
   </nav>
   <div class="content-wrapper">
     <div class="container-fluid">
-      <div style="margin-left: 85%; margin-bottom: 20px;">
-      <a href="<?php echo base_url().'time/bundy_index'?>">Punch in/out</a>
-      </div>
       <div class="card mb-3">
         <div class="card-header">
           Dashboard</div>
@@ -235,7 +258,7 @@
                           <?php echo date('h:i a', strtotime($val['time_in']));?>
                         </td>
                         <td style="text-align: center;">
-                          <?php echo date('h:i a', strtotime($val['time_out']));?>
+                          <?php echo ($val['time_out'] != '0000-00-00 00:00:00') ? date('h:i a', strtotime($val['time_out'])) : '';?>
                         </td>
                       </tr>
                     <?php endforeach;?>
@@ -256,59 +279,7 @@
       <i class="fa fa-angle-up"></i>
     </a>
     <!-- Logout Modal-->
-    <div class="modal fade new_modal" id="set_schedule" tabindex="-1" role="dialog" aria-labelledby="BKA GAME TIMER" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-          <h4 class="modal-title">Input today's schedule</h4>
-            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-error error_message" style="display: none;"></div>
-            <div class="row margin-top-10 shift_in">
-              <div class="col-md-4 col-sm-3">
-                Schedule shift in:
-              </div>
-              <div class="col-md-6 col-sm-6" style="">
-                <div class="input-group date f_left" style="width: 220px">
-                  <input id="shift_in" type="text" class="form-control tp" placeholder="" name="shift_in" date-format="Y-m-d hh:mm a" />
-                  <span class="input-group-addon" style="width: 40px"><span class="fa fa-clock-o"></span></span>
-                </div>        
-              </div>
-            </div>
-
-            <div class="row margin-top-10 shift_out">
-              <div class="col-md-4 col-sm-3">
-                Schedule shift out:
-              </div>
-              <div class="col-md-5 col-sm-5" style="">
-                <div class="input-group date f_left" style="width: 220px">
-                  <input id="shift_out" type="text" class="form-control tp" placeholder="" name="shift_out" date-format="hh:mm a" />
-                  <span class="input-group-addon" style="width: 40px"><span class="fa fa-clock-o"></span></span>
-                </div>        
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer" id="modal-footer">
-            <div id="action_wrapper">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" id="start">Start</button>
-            </div>
-            <div id="loading_wrapper" style="display: none;">
-              <div class="progress progress-striped active" style="margin-bottom: 10px;">
-                <div class="progress-bar" role="progressbar" aria-valuenow="100%" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                  <span class="sr-only">Loading</span>
-                </div>
-                
-              </div>
-            </div>
-          </div>
-        </div>
-        <div></div>
-      </div>
-    </div>
+    
 
     <!-- Bootstrap core JavaScript-->
     <script src="<?php echo base_url();?>assets/js/jquery-1.11.1.min.js"></script>
@@ -331,8 +302,6 @@
     <script src="<?php echo base_url()?>assets/js/jquery.cookie.js"></script>
     <script src="<?php echo base_url()?>assets/js/jquery.form.js"></script>
     <script src="<?php echo base_url()?>assets/js/jquery.numeric.js"></script>
-
-    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/employee.js"></script>
 
     <!-- <script type="text/javascript">
     var sBaseURL = '<?php //echo base_url(); ?>';
