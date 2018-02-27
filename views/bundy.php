@@ -230,32 +230,21 @@
   }
 
   .punch_panel{
-    margin-left: 324px;
+    margin-left: 31%;
   }
 </style>
 <?php 
-  $active_time_in = 'active';
+  $active_time_in = '';
   $active_time_out = '';
-//kprint($previous_time_logs);exit;
-  if(array_check($previous_time_logs)){
-    if($previous_time_logs['time_out'] == '' AND $previous_time_logs['time_out'] == '0000-00-00 00:00:00'){
-      $active_time_out = 'active';
-      $active_time_in = '';
-    }
+  
+  if(isset($recent_log['time_in']) == ''){
+    $active_time_in = 'active';
+  }elseif(isset($recent_log['time_out']) AND $recent_log['time_out'] == '0000-00-00 00:00:00'){
+    $active_time_out = 'active';
+    $active_time_in = '';
   }
 
-  if(array_check($time_logs)){
-    if($time_logs['time_in'] != ''){
-      $active_time_in = '';
-    }
-
-    if($time_logs['time_out'] != '0000-00-00 00:00:00'){
-      $active_time_out = '';
-    }else{
-      $active_time_out = 'active';
-    }
-  }
-
+  $no_time_record = '--:--';
 ?>
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
   <!-- Navigation-->
@@ -271,12 +260,38 @@
             <i class="fa fa-fw fa-clock-o"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
+
+          <ul style="list-style: none;">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+              <a class="nav-link" href="<?php echo base_url();?>Time/bundy_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Punch in/out</span>
+              </a>
+            </li>
+            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
+              <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Employee Time Logs</span>
+              </a>
+            </li>
+            <?php endif;?>
+          </ul>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
           <a class="nav-link" href="<?php echo base_url();?>Employee">
             <i class="fa fa-fw fa-file-text-o"></i>
             <span class="nav-link-text">Employee</span>
           </a>
+
+          <ul style="list-style: none;" id="exampleAccordion">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Manage Teams">
+              <a class="nav-link" href="<?php echo base_url();?>Employee/manage_team_index">
+                <i class="fa fa-fw fa-file-text-o"></i>
+                <span class="nav-link-text">Manage Teams</span>
+              </a>
+            </li>
+          </ul>
         </li>
         
       </ul>
@@ -327,7 +342,7 @@
             </ul>
           </div>
 
-          <div class="punch_panel">
+          <div class="punch_panel table-responsive">
             <table cellspacing="0" cellpadding="0" width="100%">
               <tbody>
                 <tr>
@@ -349,37 +364,28 @@
                   </td>
                 </tr>
                 <tr>
-                  <?php if(array_check($time_logs)):?>
-                    <?php if(isset($time_logs['time_in']) AND $time_logs['time_in'] != ''):?>
-                      <td style="padding-right: 50px;"><?php echo date('F j, Y', strtotime($time_logs['time_in']));?> <br/>
-                        <?php echo date('h:i a', strtotime($time_logs['time_in']));?>
-                      </td>
-                    <?php else:?>
-                      <td></td>
-                    <?php endif;?>
-                    <?php if(isset($time_logs['time_out']) AND $time_logs['time_out'] != '0000-00-00 00:00:00'):?>
-                      <td style="padding-right: 50px;"><?php echo date('F j, Y', strtotime($time_logs['time_out']));?> <br/>
-                        <?php echo date('h:i a', strtotime($time_logs['time_out']));?>
-                      </td>
-                    <?php else:?>
-                      <td></td>
-                    <?php endif;?>
-                  <?php else:?>
-                    <?php if(isset($previous_time_logs['time_in']) AND $previous_time_logs['time_in'] != ''):?>
-                      <td style="padding-right: 50px;"><?php echo date('F j, Y', strtotime($previous_time_logs['time_in']));?> <br/>
-                        <?php echo date('h:i a', strtotime($previous_time_logs['time_in']));?>
-                      </td>
-                    <?php else:?>
-                      <td></td>
-                    <?php endif;?>
-                    <?php if(isset($previous_time_logs['time_out']) AND $previous_time_logs['time_out'] != '0000-00-00 00:00:00'):?>
-                      <td style="padding-right: 50px;"><?php echo date('F j, Y', strtotime($previous_time_logs['time_out']));?> <br/>
-                        <?php echo date('h:i a', strtotime($previous_time_logs['time_out']));?>
-                      </td>
-                    <?php else:?>
-                      <td></td>
-                    <?php endif;?>
-                  <?php endif;?>
+                  <td style="padding-left: 3%;">
+                    <?php
+                      if(isset($recent_log['time_in'])) {
+                        if(date('Y-m-d', strtotime($recent_log['time_in'])) != date('Y-m-d')) {
+                          echo date('F j, Y', strtotime($recent_log['time_in'])).'<br />';
+                        }
+
+                        echo date('h:i a', strtotime($recent_log['time_in']));
+                      }
+                    ?>
+                  </td>
+                  <td>
+                    <?php
+                      if(isset($recent_log['time_out']) AND $recent_log['time_out'] != '0000-00-00 00:00:00') {
+                        if(date('Y-m-d', strtotime($recent_log['time_out'])) != date('Y-m-d')) {
+                          echo date('F j, Y', strtotime($recent_log['time_out'])).'<br />';
+                        }
+
+                        echo date('h:i a', strtotime($recent_log['time_out']));
+                      }
+                    ?>
+                  </td>
                 </tr>
               </tbody>
             </table>
