@@ -1,58 +1,68 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Employee extends CI_Controller {
+class Employee extends MY_Controller {
 
 	function __construct(){
 		parent::__construct();
+		parent::_verify_user_authentication();
 
 		$this->load->library('form_validation');
 	}
 
 	public function index($offset = 0){
 
-		$this->users_model->insert_users();
 		$limit = 15;
 		$key = '';
 
 		$data = array();
 		$username = $this->session->userdata('username');
-		$data['user'] = $this->users_model->get_employee_info_by_employee_id($username);
+		$role_id = $this->session->userdata('role');
 
-		$record = $this->users_model->get_employee_name(0,0);
+		$data['user'] = $user = $this->users_model->get_employee_info_by_employee_id($username);
+		
+		if(!isset($user['work_location'])){
+			$user['work_location'] = '';
+		}
+
+		$record = $this->users_model->get_employee_name($role_id, $user['work_location'], 0,0);
 
 		$config = array();
-        	$config["base_url"] = base_url() . "employee/index";
-        	$config["total_rows"] = $count = count($record['employees']);
-        	$config["per_page"] = $limit;
-        	$config["uri_segment"] = 3;
-        	$this->pagination->initialize($config);
+    	$config["base_url"] = base_url() . "employee/index";
+    	$config["total_rows"] = $count = count($record['employees']);
+    	$config["per_page"] = $limit;
+    	$config["uri_segment"] = 3;
+    	$this->pagination->initialize($config);
 
-        	$record2 = $this->users_model->get_employee_name($key, $limit);
-       
-        	//$page = ceil($count/$limit);
-        
-        	$i = 1;
-        	$page_key = array();
-        	$page_key[0] = '';
+    	$record2 = $this->users_model->get_employee_name($role_id, $user['work_location'], $key, $limit);
+    
+    	$i = 1;
+    	$page_key = array();
+    	$page_key[0] = '';
 
-        	for ($i; $i < $count; $i++) {
+    	for ($i; $i < $count; $i++) {
 
-        		$key = ''; 
-        	
-        		if(array_check($page_key)){
-        			$k = $i;
-        		
-        			$record2 = $this->users_model->get_employee_name($page_key[$k-1], $limit);
+    		$key = ''; 
+    	
+    		if(array_check($page_key)){
+    			$k = $i;
+    		
+    			$record2 = $this->users_model->get_employee_name($role_id, $user['work_location'], $page_key[$k-1], $limit);
 
-        			if(isset($record2['LastEvaluatedKey'])){
-        				$key = $record2['LastEvaluatedKey'];
-        			}
-        		}
-        		$i = $i+14;
-        		$page_key[$i] = $key;
-        	}
+    			if(isset($record2['LastEvaluatedKey'])){
+    				$key = $record2['LastEvaluatedKey'];
+    			}
+    		}
+    		$i = $i+14;
+    		$page_key[$i] = $key;
+    	}
 
-		$record2 = $this->users_model->get_employee_name($page_key[$offset], $limit);
+		$record2 = $this->users_model->get_employee_name($role_id, $user['work_location'], $page_key[$offset], $limit);
+
+		if($role_id == 5){
+			$data['employees'] = array();
+		}else{
+			$data['employees'] = $record2['employees'];
+		}
 
 		$data['employees'] = $record2['employees'];
 		$data['links']['pagination'] = $this->pagination->create_links();
@@ -63,8 +73,8 @@ class Employee extends CI_Controller {
 	public function save_employee_info(){
 		if($this->input->post()){
 			$this->form_validation->set_rules('username', 'Username', 'required');
-			$this->form_validation->set_rules('family_name', 'Family Name', 'required');
-			$this->form_validation->set_rules('given_name', 'Given Name', 'required');
+			$this->form_validation->set_rules('family_name', 'Last Name', 'required');
+			$this->form_validation->set_rules('given_name', 'First Name', 'required');
 			$this->form_validation->set_rules('password', 'Password', 'required');
 			$this->form_validation->set_rules('role_id', 'Access', 'required');
 			$this->form_validation->set_rules('employee_id', 'Employee id', 'required');
@@ -83,7 +93,6 @@ class Employee extends CI_Controller {
 			}else{
 
 				$server		= 'kbsnet.sargasinc.com';
-				//$base_dn	= 'dc=kbsnet,dc=sargasinc,dc=com';
 				$base_dn 	= 'ou=Users,dc=kbsnet,dc=sargasinc,dc=com';
 				$username = 'sgsddbadmin';
 				$password = '$uperadmin2017';  
@@ -115,7 +124,6 @@ class Employee extends CI_Controller {
 				    	$info['cn'] = $this->input->post('username');
 			            $info['userpassword'] = $this->input->post('password');
 			            
-//kprint($info);exit;
 			            $r = ldap_add($ldap, 'uid='.$info['uid'].','.$base_dn, $info);
 
 			            if($r){
@@ -203,6 +211,18 @@ class Employee extends CI_Controller {
 								unset($insert['employee_status']);
 							}
 
+							if($insert['team_name'] == ''){
+								unset($insert['team_name']);
+							}
+
+							if($insert['time_log_access'] == ''){
+								unset($insert['time_log_access']);
+							}
+
+							if($insert['work_email'] == ''){
+								unset($insert['work_email']);
+							}
+
 							$insert = json_encode($insert);
 							$success = $this->users_model->insert_employee($insert);
 
@@ -232,22 +252,104 @@ class Employee extends CI_Controller {
 
 	public function info($url_encode){
 		$data = array();
-		$data['role_id'] = $this->session->userdata('role');
+		$data['role_id'] = $role_id = $this->session->userdata('role');
+
+		if($role_id == 5){
+			show_error('You are not permitted to access this page.<br /><a href="javascript:history.back();">Click here</a> to go back.',500, 'Access Denied!');
+		}
+
 		$user_name = $this->session->userdata('username');
 		$data['user'] = $this->users_model->get_employee_info_by_employee_id($user_name);
+
+		if(!isset($user['work_location'])){
+			$user['work_location'] = '';
+		}
 
 		$username = url_decode($url_encode);
 		$data['info'] = $this->users_model->get_employee_info_by_employee_id($username);
 
+		if(isset($data['info']['team_leader'])){
+			$tl_info = $this->users_model->get_employee_info_by_employee_id($data['info']['team_leader']);
+			$data['info']['team_leader'] = $tl_info['family_name'].', '.$tl_info['given_name'];
+		}
+		
+
+		$record = $this->users_model->get_employee_name($role_id, $user['work_location'],0,0);
+		$data['team_leaders'] = $record['employees'];
+
 		$this->load->view('employee_info', $data);
+	}
+
+	public function manage_team_index(){
+		$data = array();
+		$username = $this->session->userdata('username');
+		$role_id = $this->session->userdata('role');
+		$data['user'] = $user = $this->users_model->get_employee_info_by_employee_id($username);
+
+		$team_leader = $user['given_name'].' '.$user['family_name'];
+
+		if(!isset($user['work_location'])){
+			$user['work_location'] = '';
+		}
+
+		$record = $this->users_model->get_employee_name($role_id, $user['work_location'],0,0);
+		$teams = $this->users_model->get_teams($role_id, $team_leader);
+
+		$team = array();
+
+		if(isset($teams['teams'])){
+			foreach($teams['teams'] as $key => $value){
+				if(!in_array($value, $team)){
+					$team[$key]  = $value;
+				}
+			}
+		}
+
+		$data['teams']['teams'] = $team;
+		$data['team_leaders'] = $record['employees'];
+		$this->load->view('manage_team_index', $data);
+	}
+
+	public function manage_team($url){
+		$data = array();
+		$username = $this->session->userdata('username');
+		$role_id = $this->session->userdata('role');
+		$data['user'] = $user = $this->users_model->get_employee_info_by_employee_id($username);
+
+		if(!isset($user['work_location'])){
+			$user['work_location'] = '';
+		}
+
+		$record = $this->users_model->get_employee_name($role_id, $user['work_location'],0,0);
+		$data['team_name'] = $team_name = url_decode($url);
+
+		$data['team_leaders'] = $team_leaders = $this->users_model->get_team_leaders_by_team_name($team_name);
+
+		if($role_id != 1){
+			$employee = $user['given_name'].' '.$user['family_name'];
+			$tl = array($employee);
+			foreach($team_leaders['team_leader'] as $key => $value){
+				$tl[$key] = $value['team_leader'];
+			}
+
+			if(!in_array($employee, $tl)){
+				show_error('You are not permitted to access this page.<br /><a href="javascript:history.back();">Click here</a> to go back.',500, 'Access Denied!');
+			}
+
+		}
+
+		$data['team_members'] = $this->users_model->get_team_members_by_team_name($team_name);
+		$data['employees'] = $record['employees'];
+
+		$this->load->view('manage_team', $data);
 	}
 
 	public function update_employee_info(){
 		
 		if($this->input->post()){
 			$this->form_validation->set_rules('username', 'Username', 'required');
-			$this->form_validation->set_rules('family_name', 'Family Name', 'required');
-			$this->form_validation->set_rules('given_name', 'Given Name', 'required');
+			$this->form_validation->set_rules('family_name', 'Last Name', 'required');
+			$this->form_validation->set_rules('given_name', 'First Name', 'required');
 			$this->form_validation->set_rules('password', 'Password', 'required');
 			$this->form_validation->set_rules('role_id', 'Access', 'required');
 			$this->form_validation->set_rules('employee_id', 'Employee id', 'required');
@@ -275,8 +377,8 @@ class Employee extends CI_Controller {
 					unset($update['password']);
 				}else{
 					
-					if($update['old_password'] == md5($update['password'])){
-						$update[':pa'] = md5($update['password']);
+					if($update['old_password'] == $update['password']){
+						$update[':pa'] = $update['password'];
 						unset($update['password']);
 						unset($update['old_password']);
 					}else{
@@ -337,7 +439,7 @@ class Employee extends CI_Controller {
 				if($update['employee_id'] == ''){
 					unset($update['employee_id']);
 				}else{
-					$update[':e'] = $update['employee_id'];
+					$update[':ei'] = $update['employee_id'];
 					unset($update['employee_id']);
 				}
 
@@ -481,6 +583,27 @@ class Employee extends CI_Controller {
 					unset($update['employee_status']);
 				}
 
+				if($update['team_name'] == ''){
+					unset($update['team_name']);
+				}else{
+					$update[':tn'] = $update['team_name'];
+					unset($update['team_name']);
+				}
+
+				if($update['time_log_access'] == ''){
+					unset($update['time_log_access']);
+				}else{
+					$update[':tla'] = $update['time_log_access'];
+					unset($update['time_log_access']);
+				}
+
+				if($update['work_email'] == ''){
+					unset($update['work_email']);
+				}else{
+					$update[':we'] = $update['work_email'];
+					unset($update['work_email']);
+				}
+
 				unset($update['username']);
 
 				$update_expression = array();
@@ -494,8 +617,8 @@ class Employee extends CI_Controller {
 						$ue = 'role_id=:r';
 					}
 
-					if($ue == ':e'){
-						$ue = 'employee_id=:e';
+					if($ue == ':ei'){
+						$ue = 'employee_id=:ei';
 					}
 					
 					if($ue == ':fn'){
@@ -578,6 +701,18 @@ class Employee extends CI_Controller {
 						$ue = 'employee_status=:es';
 					}
 
+					if($ue == ':tn'){
+						$ue = 'team_name=:tn';
+					}
+
+					if($ue == ':tla'){
+						$ue = 'time_log_access=:tla';
+					}
+
+					if($ue == ':we'){
+						$ue = 'work_email=:we';
+					}
+
 					array_push($update_expression, $ue);
 
 				}
@@ -645,4 +780,96 @@ class Employee extends CI_Controller {
         	echo json_encode($error);
 	    }
 	}
+	
+	public function insert_team(){
+		if($this->input->post()){
+			$this->form_validation->set_rules('team_name', 'Team Name', 'required');
+			$this->form_validation->set_rules('team_leader', 'Team Leader', 'required');
+
+			if($this->form_validation->run() == false){
+				$errors['message'] = validation_errors();
+				$errors['status'] = 'false';
+
+				echo json_encode($errors);
+			}else{
+				$insert = array();
+
+				$insert = $this->input->post();
+
+				$insert = json_encode($insert);
+				$success = $this->users_model->insert_team($insert);
+
+				echo json_encode($success);
+			}
+
+		}
+	}
+
+	public function update_team(){
+		if($this->input->post()){
+			$type = $this->input->post('modal_type');
+
+			if($type == 'team_leader'){
+				$this->form_validation->set_rules('team_leader', 'Team Leader', 'required');
+			}else{
+				$this->form_validation->set_rules('team_member', 'Team Member', 'required');
+			}
+			
+			if($this->form_validation->run() == false){
+				$errors['message'] = validation_errors();
+				$errors['status'] = 'false';
+
+				echo json_encode($errors);
+			}else{
+
+				if($type == 'team_leader'){
+					$insert = array();
+
+					$insert['team_name'] = $this->input->post('team_name');
+					$insert['team_leader'] = $this->input->post('team_leader');
+
+					$insert = json_encode($insert);
+					$record = $this->users_model->insert_team($insert);
+
+					echo json_encode($record);
+				}else{
+					$key['username']['S'] = $this->input->post('team_member');
+
+					$user = $this->users_model->get_user_by_username($this->input->post('team_member'));
+
+					if(isset($user['team_name'])){
+						$errors['message'] = 'Employee already have a team assigned.';
+						$errors['status'] = 'false';
+
+						echo json_encode($errors);
+					}else{
+						$insert = array();
+
+						$team_name = $this->input->post('team_name');
+						
+						$insert = json_encode($insert);
+						$record = $this->users_model->insert_team_member($team_name, $key);
+
+						echo json_encode($record);
+					}
+				}
+			}
+		}
+	}
+
+	public function delete_team_leader(){
+		$key['team_name']['S'] = $this->input->post('team_name');
+		$key['team_leader']['S'] = $this->input->post('team_leader');
+
+		$success = $this->users_model->delete_team_leader($key);
+		echo json_encode($success);
+	}
+
+	public function delete_team_member(){
+		$key['username']['S'] = $this->input->post('team_member');
+
+		$success = $this->users_model->delete_team_member($key);
+
+		echo json_encode($success);
+	}	
 }
