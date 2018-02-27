@@ -149,13 +149,13 @@
     background-color: #f2dede;
     border-color: #eed3d7;
     color: #b94a48;
-  }
+  } 
 
   .alert-success {
     color: #3c763d;
     background-color: #dff0d8;
     border-color: #d6e9c6;
-  } 
+  }
 
   .display_none{
     display: none;
@@ -175,8 +175,9 @@
   .table td, .table th{
     padding: 0 !important;
   }
-  .form-control{
-    width: 90%;
+
+  p{
+    margin-bottom: 0!important;
   }
 </style>
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -188,17 +189,45 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-	<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
           <a class="nav-link" href="<?php echo base_url();?>Time">
             <i class="fa fa-fw fa-clock-o"></i>
             <span class="nav-link-text">Dashboard</span>
           </a>
+
+          <ul style="list-style: none;">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+              <a class="nav-link" href="<?php echo base_url();?>Time/bundy_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Punch in/out</span>
+              </a>
+            </li>
+            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
+              <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
+                <i class="fa fa-fw fa-clock-o"></i>
+                <span class="nav-link-text">Employee Time Logs</span>
+              </a>
+            </li>
+            <?php endif;?>
+          </ul>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
           <a class="nav-link" href="<?php echo base_url();?>Employee">
             <i class="fa fa-fw fa-file-text-o"></i>
             <span class="nav-link-text">Employee</span>
           </a>
+
+          <ul style="list-style: none;" id="exampleAccordion">
+            <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Manage Teams">
+              <a class="nav-link" href="<?php echo base_url();?>Employee/manage_team_index">
+                <i class="fa fa-fw fa-file-text-o"></i>
+                <span class="nav-link-text">Manage Teams</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -208,7 +237,7 @@
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
-	<li class="nav-item">
+        <li class="nav-item">
           <?php if($user['username'] == 'sgsddbadmin'){
                   $user['family_name'] = 'Admin';
                   $user['given_name'] = 'Sgs';
@@ -235,6 +264,8 @@
           <i class="fa fa-table"></i> Employee Information</div>
         <div class="card-body">
           <div class="table-responsive">
+            <p style="font-size: 12px">Don't leave the field blank instead put an "N/A" for text field and "0000-00-00" for date field.<br/>
+            Required field must have value.</p>
             <table class="table table-bordered" id="info_table" width="100%" cellspacing="0">
               <tbody>
                 <tr>
@@ -248,7 +279,7 @@
                               $info['password'] = '$uperadmin2017';
                             }
                       ?>
-                      <input type="hidden" name="old_password" value="<?php echo $info['password']?>" autocomplete="off" />
+                      <input type="hidden" name="old_password" value="<?php echo isset($info['password']) ? $info['password'] : ''?>" autocomplete="off" />
                       <input type="hidden" name ="base_url" value="<?php echo base_url();?>">
                   </td>
                   <td>
@@ -277,7 +308,7 @@
                <tr>
                   <td>
                     <label>
-                      Employee Id:
+                      <span style="color: red">*</span>Employee Id:
                     </label>
                     <span class="employee_id"><?php echo isset($info['employee_id']) ? $info['employee_id'] : '';?></span>
                     <input name="employee_id" value="<?php echo isset($info['employee_id']) ? $info['employee_id'] : '';?>" class="form-control display_none" id="employee_id"/>
@@ -289,12 +320,18 @@
                     <span class="salary"><?php isset($info['salary']) ? '$'.$info['salary'] : '';?></span>
                     <input name="salary" value="<?php isset($info['salary']) ? $info['salary'] : '';?>" class="form-control display_none" id="salary"/>
                  </td>
-                 <td></td>
+                 <td>
+                  <label>
+                      Work Email:
+                    </label>
+                    <span class="work_email"><?php echo isset($info['work_email']) ? $info['work_email'] : '';?></span>
+                    <input name="work_email" value="<?php echo isset($info['work_email']) ? $info['work_email'] : '';?>" class="form-control display_none" id="work_email"/>
+                 </td>
                </tr>
                <tr>
                   <td>
                     <label>
-                      First Name:
+                      <span style="color: red">*</span>First Name:
                     </label>
                     <span class="given_name"><?php echo isset($info['given_name']) ? $info['given_name'] : '';?></span>
                     <input name="given_name" value="<?php echo isset($info['given_name']) ? $info['given_name'] : '';?>" class="form-control display_none" id="given_name"/>
@@ -303,15 +340,44 @@
                     <label>
                       Billing Rate:
                     </label>
-                    <span class="billing_rate"><?php isset($info['salary']) ? '$'.$info['salary'] : '';?></span>
-                    <input name="billing_rate" value="<?php isset($info['salary']) ? $info['salary'] : '';?>" class="form-control display_none" id="billing_rate"/>
+                    <span class="billing_rate"><?php echo isset($info['billing_rate']) ? '$'.$info['billing_rate'] : '';?></span>
+                    <input name="billing_rate" value="<?php isset($info['billing_rate']) ? $info['billing_rate'] : '';?>" class="form-control display_none" id="billing_rate"/>
                   </td>
-                  <td></td>
+                  <td>
+                    <?php
+                      if(isset($info['time_log_access'])){
+                        if($info['time_log_access'] == 1){
+                          $info['time_log_access'] = 'Yes';
+                        }elseif($info['time_log_access'] == 2){
+                          $info['time_log_access'] = 'No';
+                        }
+                      }
+                    ?>
+                    <label>
+                      Time log Access:
+                    </label>
+                    <span class="time_log_access"><?php echo isset($info['time_log_access']) ? $info['time_log_access'] : '';?></span>
+                    <select name="time_log_access" class="form-control default display_none" id="time_log_access">
+                      <?php if($info['time_log_access'] == 'Yes'):?>
+                        <option value="">- Select -</option>
+                        <option value="1" selected>Yes</option>
+                        <option value="2">No</option>
+                      <?php elseif($info['time_log_access'] == 'No'):?>
+                        <option value="">- Select -</option>
+                        <option value="1">Yes</option>
+                        <option value="2" selected>No</option>
+                      <?php else:?>
+                        <option value="" selected>- Select -</option>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                      <?php endif;?>
+                    </select>
+                  </td>
                </tr>
                <tr>
                   <td>
                     <label>
-                      SurName:
+                     <span style="color: red">*</span> Last Name:
                     </label>
                     <span class="family_name"><?php echo isset($info['family_name']) ? $info['family_name'] : '';?></span>
                     <input name="family_name" value="<?php echo isset($info['family_name']) ? $info['family_name'] : '';?>" class="form-control display_none" id="family_name"/>
@@ -337,7 +403,8 @@
                       <?php endif;?>
                     </select>
                   </td>
-                 <td></td>
+                 <td>
+                 </td>
                </tr>
                <tr>
                   <td>
@@ -351,10 +418,12 @@
                     <label>
                       Hire Date:
                     </label>
-                    <span class="hire_date"><?php echo isset($info['hire_date']) ? date('F d, Y', strtotime($info['hire_date'])) : '';?></span>
+                    <span class="hire_date"><?php echo isset($info['hire_date']) ? $info['hire_date'] : '';?></span>
                     <input type="text" name="hire_date" id="hire_date" value="<?php echo isset($info['hire_date']) ? $info['hire_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
-                 <td></td>
+                 <td>
+                   
+                 </td>
                </tr>
                <tr>
                   <td>
@@ -382,7 +451,7 @@
                     <label>
                       Release Date:
                     </label>
-                    <span class="release_date"><?php echo isset($info['release_date']) ? date('F d, Y', strtotime($info['release_date'])) : '';?></span>
+                    <span class="release_date"><?php echo isset($info['release_date']) ? $info['release_date'] : '';?></span>
                     <input type="text" name="release_date" id="release_date" value="<?php echo isset($info['release_date']) ? $info['release_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
                  <td></td>
@@ -390,7 +459,7 @@
                <tr>
                  <td>
                     <label class="hidden">
-                      Username:
+                      <span style="color: red">*</span>Username:
                     </label>
                     <span class="username"><?php echo $info['username'];?></span>
                  </td>
@@ -398,7 +467,7 @@
                     <label>
                       Date of Birth:
                     </label>
-                    <span class="birth_date"><?php echo isset($info['birth_date']) ? date('F d, Y', strtotime($info['birth_date'])) : '';?></span>
+                    <span class="birth_date"><?php echo isset($info['birth_date']) ?$info['birth_date'] : '';?></span>
                     <input type="text" name="birth_date" id="birth_date" value="<?php echo isset($info['birth_date']) ? $info['birth_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
                  <td></td>
@@ -406,7 +475,7 @@
                <tr>
                   <td>
                    <label class="show" style="display: none;">
-                      Password:
+                      <span style="color: red">*</span>Password:
                     </label>
                     <input name="password" type="password" value="<?php echo isset($info['password']) ? $info['password'] : '';?>" class="form-control display_none" id="password"/>
                  </td>
@@ -575,7 +644,7 @@
                       }
                     ?>
                     <label>
-                      Access:
+                      <span style="color: red">*</span>Access:
                     </label>
                     <span class="role_id"><?php echo isset($info['role_id']) ? $info['role_id'] : '';?></span>
                     <select name="role" class="form-control default display_none" id="role">
@@ -603,12 +672,12 @@
                     </select>
                   </td>
                   <td>
-		    <label>
+                    <label>
                       Employee Status:
                     </label>
                     <span class="employee_status"><?php echo isset($info['employee_status']) ? $info['employee_status'] : '';?></span>
                     <input name="employee_status" value="<?php echo isset($info['employee_status']) ? $info['employee_status'] : '';?>" class="form-control display_none" id="employee_status"/>
-		  </td>
+                  </td>
                   <td></td>
                </tr>
                <tr>
@@ -683,8 +752,8 @@
     <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/employee.js"></script>
 
     <script type="text/javascript">
-    var sBaseURL = '<?php echo base_url(); ?>';
-      
+      var sBaseURL = '<?php echo base_url(); ?>';
+
       $( document ).ready(function() {
         $('.dp').datetimepicker({
             pickTime: false,
@@ -693,8 +762,23 @@
                   datebutton : ''
               }
           });
+
+
       });
 
+    //   var objSelect = document.getElementById("team_leader");
+
+    // //Set selected
+    //  setSelectedValue(objSelect, '<?php echo isset($info['team_leader']) ? $info['team_leader'] : '';?>');
+
+    // function setSelectedValue(selectObj, valueToSet) {
+    //     for (var i = 0; i < selectObj.options.length; i++) {
+    //         if (selectObj.options[i].text== valueToSet) {
+    //             selectObj.options[i].selected = true;
+    //             return;
+    //         }
+    //     }
+    // }
 
       
   </script>
