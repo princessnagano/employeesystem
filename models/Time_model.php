@@ -271,6 +271,52 @@ class Time_model extends CI_Model{
 		}
 	}
 
+	public function get_time_logs_by_username_daterange($usernames){
+		$record = array();
+
+		// $sdk = new Aws\Sdk([
+		//     'endpoint'   => 'http://localhost:8000/',
+		//     'region'   => 'us-west-2',
+		//     'version'  => 'latest',
+		//     'credentials' => array('key'=>'sharedDb',
+  //               'secret'=>'sharedDb')
+		// ]);
+
+		$sdk = new Aws\Sdk([
+		    'region'   => 'ap-southeast-1',
+		    'version'  => 'latest',
+		    'credentials' => array('key'=>'AKIAIKQ6XI5AR6CJDI3A',
+                'secret'=>'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')
+		]);
+
+		$dynamodb = $sdk->createDynamoDb();
+		$marshaler = new Marshaler();
+
+		$params = [
+			'TableName' => 'empattendance',
+			'FilterExpression' => 'username IN ('.$usernames['fe'].') AND #d BETWEEN :f AND :t',
+			'ExpressionAttributeNames' => [
+				'#d' => 'date'
+			],
+			'ExpressionAttributeValues' => $usernames['ev']
+		];
+
+		try{
+			$scan_response = $dynamodb->scan($params);
+			if(array_check($scan_response['Items'])){
+
+				foreach($scan_response['Items'] as $key => $value){
+					$record[] = json_decode($marshaler->unmarshalJson($value), true);
+				}
+				
+			}
+
+			return $record;
+		}catch (DynamoDbException $e){
+			return $record;
+		}
+	}
+
 	public function delete_time_log($key){
 		// $sdk = new Aws\Sdk([
 		//     'endpoint'   => 'http://localhost:8000/',
