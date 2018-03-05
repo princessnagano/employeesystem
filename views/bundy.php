@@ -243,7 +243,8 @@
     $active_time_out = 'active';
     $active_time_in = '';
   }
-
+// kprint('time_in: '.$active_time_in);
+// kprint('time_out:'.$active_time_out);exit;
   $no_time_record = '--:--';
 ?>
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -268,7 +269,7 @@
                 <span class="nav-link-text">Punch in/out</span>
               </a>
             </li>
-            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <?php if($user['role_id'] == 1 OR (isset($user['time_log_access']) AND $user['time_log_access'] == 1)):?>
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
               <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
                 <i class="fa fa-fw fa-clock-o"></i>
@@ -293,7 +294,14 @@
             </li>
           </ul>
         </li>
-        
+        <?php if($user['role_id'] == 1 OR (isset($user['reports_access']) AND $user['reports_access'] == 1)):?>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reports">
+          <a class="nav-link" href="<?php echo base_url();?>Reports">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            <span class="nav-link-text">Reports</span>
+          </a>
+        </li>
+         <?php endif;?>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -402,7 +410,7 @@
       <i class="fa fa-angle-up"></i>
     </a>
     <!-- Logout Modal-->
-    <div class="modal fade new_modal" id="set_schedule" tabindex="-1" role="dialog" aria-labelledby="BKA GAME TIMER" aria-hidden="true">
+    <div class="modal fade new_modal" id="set_schedule" tabindex="-1" role="dialog" aria-labelledby="SET SCHEDULE" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
