@@ -211,9 +211,9 @@ class Employee extends MY_Controller {
 								unset($insert['employee_status']);
 							}
 
-							if($insert['team_name'] == ''){
-								unset($insert['team_name']);
-							}
+							// if($insert['team_name'] == ''){
+							// 	unset($insert['team_name']);
+							// }
 
 							if($insert['time_log_access'] == ''){
 								unset($insert['time_log_access']);
@@ -221,6 +221,10 @@ class Employee extends MY_Controller {
 
 							if($insert['work_email'] == ''){
 								unset($insert['work_email']);
+							}
+
+							if($insert['reports_access'] == ''){
+								unset($insert['reports_access']);
 							}
 
 							$insert = json_encode($insert);
@@ -583,12 +587,12 @@ class Employee extends MY_Controller {
 					unset($update['employee_status']);
 				}
 
-				if($update['team_name'] == ''){
-					unset($update['team_name']);
-				}else{
-					$update[':tn'] = $update['team_name'];
-					unset($update['team_name']);
-				}
+				// if($update['team_name'] == ''){
+				// 	unset($update['team_name']);
+				// }else{
+				// 	$update[':tn'] = $update['team_name'];
+				// 	unset($update['team_name']);
+				// }
 
 				if($update['time_log_access'] == ''){
 					unset($update['time_log_access']);
@@ -602,6 +606,13 @@ class Employee extends MY_Controller {
 				}else{
 					$update[':we'] = $update['work_email'];
 					unset($update['work_email']);
+				}
+
+				if($update['reports_access'] == ''){
+					unset($update['reports_access']);
+				}else{
+					$update[':ra'] = $update['reports_access'];
+					unset($update['reports_access']);
 				}
 
 				unset($update['username']);
@@ -701,9 +712,9 @@ class Employee extends MY_Controller {
 						$ue = 'employee_status=:es';
 					}
 
-					if($ue == ':tn'){
-						$ue = 'team_name=:tn';
-					}
+					// if($ue == ':tn'){
+					// 	$ue = 'team_name=:tn';
+					// }
 
 					if($ue == ':tla'){
 						$ue = 'time_log_access=:tla';
@@ -711,6 +722,10 @@ class Employee extends MY_Controller {
 
 					if($ue == ':we'){
 						$ue = 'work_email=:we';
+					}
+
+					if($ue == ':ra'){
+						$ue = 'reports_access=:ra';
 					}
 
 					array_push($update_expression, $ue);
