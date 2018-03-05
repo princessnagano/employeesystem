@@ -63,20 +63,28 @@ class Time extends MY_Controller {
 	}
 
 	public function bundy_index(){
-		$date = date('Y-m-d');
-		$previous_date = date('Y-m-d', strtotime('-1 day'));
+		//$date = date('Y-m-d');
+		//$previous_date = date('Y-m-d', strtotime('-1 day'));
 
 		$data = array();
 		$username = $this->session->userdata('username');
 		$data['user'] = $this->users_model->get_employee_info_by_employee_id($username);
 
-		$time_logs = $this->time_model->get_last_log_by_username($username);
+		$last_log = $this->time_model->get_last_log_by_username($username);
 
-		if(!array_check($time_logs)){
-			$time_logs['time_logs'] = array();
+		if(array_check($last_log)){
+			if($last_log['time_log']['time_out'] == '0000-00-00 00:00:00'){
+				$date = $last_log['time_log']['date'];
+			}else{
+				$date = date('Y-m-d');
+			}
+		}else{
+			$date = date('Y-m-d');
 		}
 
-		$data['recent_log'] = $time_logs['time_logs'];
+		$time_logs = $this->time_model->get_logs_by_username_and_date($username, $date);
+
+		$data['recent_log'] = $time_logs;
 
 		$this->load->view('bundy', $data);
 	}
