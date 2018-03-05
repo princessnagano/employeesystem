@@ -162,10 +162,10 @@
     padding: 0 !important;
   }
 
-  .table{
+  /*.table{
     width: 80% !important;
     margin-left: 10%;
-  }
+  }*/
   .display_none{
     display: none;
   }
@@ -196,7 +196,7 @@
                 <span class="nav-link-text">Punch in/out</span>
               </a>
             </li>
-            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <?php if($user['role_id'] == 1 OR (isset($user['time_log_access']) AND $user['time_log_access'] == 1)):?>
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
               <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
                 <i class="fa fa-fw fa-clock-o"></i>
@@ -221,7 +221,14 @@
             </li>
           </ul>
         </li>
-        
+        <?php if($user['role_id'] == 1 OR (isset($user['reports_access']) AND $user['reports_access'] == 1)):?>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reports">
+          <a class="nav-link" href="<?php echo base_url();?>Reports">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            <span class="nav-link-text">Reports</span>
+          </a>
+        </li>
+         <?php endif;?>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -305,36 +312,36 @@
                         <input type="hidden" name="username" value="<?php echo isset($time_log['username']) ? $time_log['username'] : '';?>" autocomplete="off" />
                       </td>
                       <td>
-                        <span class="edit shift_in"><?php echo isset($time_log['shift_in']) ? date('h:i a', strtotime($time_log['shift_in'])) : '';?></span>
+                        <span class="edit shift_in"><?php echo isset($time_log['shift_in']) ? date('M d, Y h:i a', strtotime($time_log['shift_in'])) : '';?></span>
                          <input id="shift_in" type="text" class="form-control tp display_none" value="<?php echo isset($time_log['shift_in']) ? date('Y-m-d h:i a', strtotime($time_log['shift_in'])) : '';?>" placeholder="" name="shift_in" date-format="Y-m-d hh:mm a" />
                       </td>
                       <td>
-                        <span class="edit shift_out"><?php echo isset($time_log['shift_out']) ? date('h:i a', strtotime($time_log['shift_out'])) : '';?></span>
+                        <span class="edit shift_out"><?php echo isset($time_log['shift_out']) ? date('M d, Y h:i a', strtotime($time_log['shift_out'])) : '';?></span>
                          <input id="shift_out" type="text" class="form-control tp display_none" value="<?php echo isset($time_log['shift_out']) ? date('Y-m-d h:i a', strtotime($time_log['shift_out'])) : '';?>" placeholder="" name="shift_out" date-format="Y-m-d hh:mm a" />
                       </td>
                       <td>
-                        <span class="edit time_in"><?php echo isset($time_log['time_in']) ? date('h:i a', strtotime($time_log['time_in'])) : '';?></span>
+                        <span class="edit time_in"><?php echo isset($time_log['time_in']) ? date('M d, Y h:i a', strtotime($time_log['time_in'])) : '';?></span>
                         <input id="time_in" type="text" class="form-control tp display_none" value="<?php echo isset($time_log['time_in']) ? date('Y-m-d h:i a', strtotime($time_log['time_in'])) : '';?>" placeholder="" name="time_in" date-format="Y-m-d hh:mm a" />                          
                       </td>
                       <td>
-                        <span class="edit time_out"><?php echo isset($time_log['time_out']) ? date('h:i a', strtotime($time_log['time_out'])) : '';?></span>
+                        <span class="edit time_out"><?php echo isset($time_log['time_out']) ? date('M d, Y h:i a', strtotime($time_log['time_out'])) : '';?></span>
                          <input id="time_out" type="text" class="form-control tp display_none" value="<?php echo isset($time_log['time_out']) ? date('Y-m-d h:i a', strtotime($time_log['time_out'])) : '';?>" placeholder="" name="time_out" date-format="Y-m-d hh:mm a" />
                       </td>
                       <td>
-                        <p data-placement="top" data-toggle="tooltip" title="Edit" class="edit" data-value="" style="margin-left: 25%;">
+                        <p data-placement="top" data-toggle="tooltip" title="Edit" class="edit" data-value="" style="margin-left: 11%;">
                           <button class="btn btn-primary btn-xs" data-title="Edit" data-toggle="modal" data-target="#edit" ><span class="fa fa-edit"></span></button>
                         </p>
 
-                        <p data-placement="top" data-toggle="tooltip" title="Save" class="save display_none" data-value="" style="margin-left: 25%;">
+                        <p data-placement="top" data-toggle="tooltip" title="Save" class="save display_none" data-value="" style="margin-left: 11%;">
                           <button class="btn btn-primary btn-xs" data-title="Save" data-toggle="modal" data-target="#save" ><span class="fa fa-save"></span></button>
                         </p>
                       </td>
                       <td>
-                        <p data-placement="top" data-toggle="tooltip" title="Delete" class="delete" data-value="" style="margin-left: 25%;">
+                        <p data-placement="top" data-toggle="tooltip" title="Delete" class="delete" data-value="" style="margin-left: 11%;">
                           <button class="btn btn-danger btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete"><span class="fa fa-trash"></span></button>
                         </p>
 
-                        <p data-placement="top" data-toggle="tooltip" title="Cancel" class="cancel display_none" data-value="" style="margin-left: 25%;">
+                        <p data-placement="top" data-toggle="tooltip" title="Cancel" class="cancel display_none" data-value="" style="margin-left: 11%;">
                           <button class="btn btn-danger btn-xs" data-title="Cancel" data-toggle="modal" data-target="#cancel"><span class="fa fa-times-circle"></span></button>
                         </p>
                       </td>
