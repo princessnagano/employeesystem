@@ -184,7 +184,7 @@
                 <span class="nav-link-text">Punch in/out</span>
               </a>
             </li>
-            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <?php if($user['role_id'] == 1 OR (isset($user['time_log_access']) AND $user['time_log_access'] == 1)):?>
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
               <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
                 <i class="fa fa-fw fa-clock-o"></i>
@@ -209,7 +209,14 @@
             </li>
           </ul>
         </li>
-        
+        <?php if($user['role_id'] == 1 OR (isset($user['reports_access']) AND $user['reports_access'] == 1)):?>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reports">
+          <a class="nav-link" href="<?php echo base_url();?>Reports">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            <span class="nav-link-text">Reports</span>
+          </a>
+        </li>
+         <?php endif;?>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -256,9 +263,11 @@
                         </td>
                         <td style="text-align: center;">
                           <?php echo date('h:i a', strtotime($val['time_in']));?>
+                          <p style="font-size: 10px;"><?php echo date('F d, Y', strtotime($val['time_in']));?></p>
                         </td>
                         <td style="text-align: center;">
                           <?php echo ($val['time_out'] != '0000-00-00 00:00:00') ? date('h:i a', strtotime($val['time_out'])) : '';?>
+                          <p style="font-size: 10px;"><?php echo ($val['time_out'] != '0000-00-00 00:00:00') ? date('F d, Y', strtotime($val['time_out'])) : '';;?></p>
                         </td>
                       </tr>
                     <?php endforeach;?>
