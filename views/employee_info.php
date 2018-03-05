@@ -202,7 +202,7 @@
                 <span class="nav-link-text">Punch in/out</span>
               </a>
             </li>
-            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <?php if($user['role_id'] == 1 OR (isset($user['time_log_access']) AND $user['time_log_access'] == 1)):?>
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee">
               <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
                 <i class="fa fa-fw fa-clock-o"></i>
@@ -227,7 +227,14 @@
             </li>
           </ul>
         </li>
-        
+        <?php if($user['role_id'] == 1 OR (isset($user['reports_access']) AND $user['reports_access'] == 1)):?>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reports">
+          <a class="nav-link" href="<?php echo base_url();?>Reports">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            <span class="nav-link-text">Reports</span>
+          </a>
+        </li>
+         <?php endif;?>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -404,6 +411,34 @@
                     </select>
                   </td>
                  <td>
+                    <?php
+                      if(isset($info['reports_access'])){
+                        if($info['reports_access'] == 1){
+                          $info['reports_access'] = 'Yes';
+                        }elseif($info['reports_access'] == 2){
+                          $info['reports_access'] = 'No';
+                        }
+                      }
+                    ?>
+                    <label>
+                      Reports Access:
+                    </label>
+                    <span class="reports_access"><?php echo isset($info['reports_access']) ? $info['reports_access'] : '';?></span>
+                    <select name="reports_access" class="form-control default display_none" id="reports_access">
+                      <?php if($info['reports_access'] == 'Yes'):?>
+                        <option value="">- Select -</option>
+                        <option value="1" selected>Yes</option>
+                        <option value="2">No</option>
+                      <?php elseif($info['reports_access'] == 'No'):?>
+                        <option value="">- Select -</option>
+                        <option value="1">Yes</option>
+                        <option value="2" selected>No</option>
+                      <?php else:?>
+                        <option value="" selected>- Select -</option>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                      <?php endif;?>
+                    </select>
                  </td>
                </tr>
                <tr>
@@ -418,7 +453,10 @@
                     <label>
                       Hire Date:
                     </label>
-                    <span class="hire_date"><?php echo isset($info['hire_date']) ? $info['hire_date'] : '';?></span>
+                    <?php if(isset($info['hire_date']) AND $info['hire_date'] == '0000-00-00 00:00:00'):?>
+                      <?php $info['hire_date'] = '';?>
+                      <span class="hire_date"><?php echo isset($info['hire_date']) ? $info['hire_date'] : '';?></span>
+                    <?php endif;?>
                     <input type="text" name="hire_date" id="hire_date" value="<?php echo isset($info['hire_date']) ? $info['hire_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
                  <td>
@@ -451,7 +489,10 @@
                     <label>
                       Release Date:
                     </label>
-                    <span class="release_date"><?php echo isset($info['release_date']) ? $info['release_date'] : '';?></span>
+                    <?php if(isset($info['release_date']) AND $info['release_date'] == '0000-00-00 00:00:00'):?>
+                      <?php $info['release_date'] = '';?>
+                      <span class="release_date"><?php echo isset($info['release_date']) ? $info['release_date'] : '';?></span>
+                    <?php endif;?>
                     <input type="text" name="release_date" id="release_date" value="<?php echo isset($info['release_date']) ? $info['release_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
                  <td></td>
@@ -467,7 +508,10 @@
                     <label>
                       Date of Birth:
                     </label>
-                    <span class="birth_date"><?php echo isset($info['birth_date']) ?$info['birth_date'] : '';?></span>
+                    <?php if(isset($info['birth_date']) AND $info['birth_date'] == '0000-00-00 00:00:00'):?>
+                      <?php $info['birth_date'] = '';?>
+                      <span class="birth_date"><?php echo isset($info['birth_date']) ?$info['birth_date'] : '';?></span>
+                    <?php endif;?>
                     <input type="text" name="birth_date" id="birth_date" value="<?php echo isset($info['birth_date']) ? $info['birth_date'] : '';?>" class="datetimepicker form-control dp display_none" data-date-format="YYYY-MM-DD" placeholder="" />
                  </td>
                  <td></td>
