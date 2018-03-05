@@ -177,7 +177,7 @@
                 <span class="nav-link-text">Punch in/out</span>
               </a>
             </li>
-            <?php if($user['role_id'] == 1 OR $user['time_log_access'] == 1):?>
+            <?php if($user['role_id'] == 1 OR (isset($user['time_log_access']) AND $user['time_log_access'] == 1)):?>
             <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Employee Time Logs">
               <a class="nav-link" href="<?php echo base_url();?>Time/time_logs_index">
                 <i class="fa fa-fw fa-clock-o"></i>
@@ -202,7 +202,14 @@
             </li>
           </ul>
         </li>
-        
+        <?php if($user['role_id'] == 1 OR (isset($user['reports_access']) AND $user['reports_access'] == 1)):?>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Reports">
+          <a class="nav-link" href="<?php echo base_url();?>Reports">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            <span class="nav-link-text">Reports</span>
+          </a>
+        </li>
+         <?php endif;?>
       </ul>
       <ul class="navbar-nav sidenav-toggler">
         <li class="nav-item">
@@ -562,6 +569,18 @@
               </div>
               <div class="col-md-3 col-sm-3" style="">
                 <input name="work_email" class="form-control" id="work_email"/>         
+              </div>
+            </div>
+            <div class="row margin-top-10 drill_down_row">
+               <div class="col-md-2 col-sm-1" style="margin-top: 5px;">
+                Reports Access:
+              </div>
+              <div class="col-md-3 col-sm-3" style="">
+                <select name="reports_access" class="form-control default" id="reports_access">
+                  <option value="">- Select -</option>
+                  <option value="1">Yes</option>
+                  <option value="2">No</option>
+                </select>
               </div>
             </div>
           </div>
