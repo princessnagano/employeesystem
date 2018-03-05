@@ -676,6 +676,59 @@ class Users_model extends CI_Model{
 		}
 	}
 
+	public function create_team(){
+
+		$sdk = new Aws\Sdk([
+		    'region'   => 'ap-southeast-1',
+		    'version'  => 'latest',
+		    'credentials' => array('key'=>'AKIAIKQ6XI5AR6CJDI3A',
+                'secret'=>'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')
+		]);
+
+		$dynamodb = $sdk->createDynamoDb();
+		
+		$params = [
+		    'TableName' => 'sgsteams',
+		    'KeySchema' => [
+		        [
+		            'AttributeName' => 'team_name',
+		            'KeyType' => 'HASH'  //Partition key
+		        ],
+		        [
+		            'AttributeName' => 'team_leader',
+		            'KeyType' => 'RANGE'  //Sort key
+		        ]
+
+		    ],
+		    'AttributeDefinitions' => [
+		        [
+		            'AttributeName' => 'team_name',
+		            'AttributeType' => 'S'
+		        ],
+		        [
+		            'AttributeName' => 'team_leader',
+		            'AttributeType' => 'S'
+		        ],
+
+		    ],
+		    'ProvisionedThroughput' => [
+		        'ReadCapacityUnits' => 1,
+		        'WriteCapacityUnits' => 1
+		    ]
+		];
+
+		try {
+		    $result = $dynamodb->createTable($params);
+		    echo 'Created table.  Status: ' . 
+		        $result['TableDescription']['TableStatus'] ."\n";
+
+		} catch (DynamoDbException $e) {
+		    echo "Unable to create table:\n";
+		    echo $e->getMessage() . "\n";
+		}
+
+	}
+
 	public function delete_table(){
 		$sdk = new Aws\Sdk([
 		    'region'   => 'ap-southeast-1',
